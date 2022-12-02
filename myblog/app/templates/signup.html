@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+<div class="col-sm-6">
+    <h1>Signup</h1>
+    <div class="container-fluid">
+        <form action="" method="POST">
+            {% csrf_token %}
+            {% for form in form %}
+            {{form.label_tag}}{{form}}{{form.errors|striptags}}
+            {% endfor %}
+            <input type="submit" value="Signup" class="btn btn-primary my-3">
+        </form>
+    </div>
+    
+</div>
+    
+
+
+{% endblock content %}
