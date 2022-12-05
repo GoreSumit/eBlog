@@ -28,7 +28,9 @@ urlpatterns = [
     path('logout/',views.user_logout,name='logout') ,
     path('add/',views.add_post),
     path('updatedata/<int:id>',views.updatedata,name='updatedata'),
-    path('deletedata/<int:id>',views.deletedata,name='deletedata')
+    path('deletedata/<int:id>',views.deletedata,name='deletedata'),
+    
+    
 
     
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

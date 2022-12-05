@@ -1,4 +1,4 @@
-from django.shortcuts import render,HttpResponseRedirect
+from django.shortcuts import render,HttpResponseRedirect,HttpResponse
 from .forms import UserForm,UserLogin,PostForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
@@ -29,13 +29,15 @@ def user_login(request):
         if fm.is_valid():
             uname = fm.cleaned_data['username']
             upass = fm.cleaned_data['password']
+            print(uname,upass)
             user = authenticate(username=uname,password=upass)
             if user is not None:
                 login(request,user)
                 messages.success(request,"Login Successful")
                 return HttpResponseRedirect('/profile/')
-            else:
-                return HttpResponseRedirect('/signup/')
+        else:
+            messages.warning(request,"User does not exist or wrong credentials")
+            return render(request,'login.html',{'form':fm})
     else:
         fm=UserLogin()
         return render(request,'login.html',{'form':fm})
@@ -64,6 +66,7 @@ def user_profile(request):
         return HttpResponseRedirect('/login/')
     
     
+    
 def add_post(request):
     if request.user.is_authenticated:    
         if request.method=='POST':
@@ -83,23 +86,68 @@ def add_post(request):
         return HttpResponseRedirect('/login/') 
 
 def updatedata(request,id):
-    if request.method=="POST":
-        dat=Post.objects.get(pk=id)
-        fm = PostForm(request.POST,instance=dat)
-        if fm.is_valid():
-            fm.save()
-            messages.success(request,"Post edit Successful")
+    if request.user.is_authenticated:
+        userid = request.user.id
+        get_id=Post.objects.get(pk=id).user_id
+        if userid == get_id:
+            if request.method=="POST":
+                dat=Post.objects.get(pk=id)
+                fm = PostForm(request.POST,instance=dat)
+                if fm.is_valid():
+                    fm.save()
+                    messages.success(request,"Post edit Successful")
+                    return HttpResponseRedirect('/profile/')
+            else:
+                dat=Post.objects.get(pk=id)
+                fm=PostForm(instance=dat)
+                return render(request,'edit.html',{'form':fm})
+            
+        else:
+            messages.warning(request,"You do not have permission for this task")
             return HttpResponseRedirect('/profile/')
     else:
-        dat=Post.objects.get(pk=id)
-        fm=PostForm(instance=dat)
-        
-    return render(request,'edit.html',{'form':fm})
-
+        return HttpResponseRedirect('/login/')
   
 def deletedata(request,id):
-    if request.method=="POST":
-        dat=Post.objects.get(pk=id)
-        dat.delete()
-        return HttpResponseRedirect('/profile/')
-    
+    if request.user.is_authenticated:
+        userid = request.user.id
+        get_id=Post.objects.get(pk=id).user_id
+        if userid == get_id:
+            if request.method=="POST":
+                dat=Post.objects.get(pk=id)
+                dat.delete()
+                return HttpResponseRedirect('/profile/')
+        else:
+            messages.warning(request,"You do not have permission for this task")
+            return HttpResponseRedirect('/profile/')
+    else:
+        return HttpResponseRedirect('/login/')
+'''
+def updatedata(request,id):
+    if request.user.is_authenticated:   
+        if request.method=="POST":
+            dat=Post.objects.get(pk=id)
+            fm = PostForm(request.POST,instance=dat)
+            if fm.is_valid():
+                fm.save()
+                messages.success(request,"Post edit Successful")
+                return HttpResponseRedirect('/profile/')
+        else:
+            dat=Post.objects.get(pk=id)
+            fm=PostForm(instance=dat)
+            return render(request,'edit.html',{'form':fm})
+    else:
+        return HttpResponseRedirect('/login/')
+
+'''
+
+
+'''
+    if user is not None:
+                login(request,user)
+                messages.success(request,"Login Successful")
+                return HttpResponseRedirect('/profile/')
+            else:
+                messages.warning(request,"User does not exist")
+                return HttpResponseRedirect('/signup/')
+'''
