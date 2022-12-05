@@ -1,5 +1,5 @@
 # eBlog
-A simple Blog app;icationi project mostly focusing on one to many relation in user and database
+A simple Blog application project mostly focusing on one to many relation in user and database
 
 #few qualities
 Multiple Users
